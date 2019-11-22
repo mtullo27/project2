@@ -12,18 +12,17 @@ int direct(vector<long long> addr, vector<string> func, int size){
 		valid[i] = 0;
 	}
 	for(int i = 0; i<addr.size(); i++){
-		int block_addr = addr[i]/32;
+		int block_addr = addr[i]/size;
 		int index = addr[i]%size;
-		
-		if(valid[index] == 0){
-			valid[index] = 1;
-			cache[index] = block_addr;
-		}
 		if(valid[index] == 1){
 			if(cache[index] == block_addr)
 				hit++;
 			else
 				cache[index] = block_addr;
+		}	
+		if(valid[index] == 0){
+			valid[index] = 1;
+			cache[index] = block_addr;
 		}
 	}
 	return hit;
