@@ -31,46 +31,50 @@ int direct(vector<long long> addr, int size){
 }
 
 int set_associative(vector<long long>addr, int way){
-  int blocks = (16*1024)/32;
+  int blocks = 512;
   long long cache[blocks][way];
   int hit = 0;
-  long long LRU[blocks][way];
+  int LRU[blocks][way];
   for(int i = 0; i < blocks; i++){
     for(int j = 0; j < way; j++){
-      cache[i][j] = -1;
-      LRU[i][j]=-1;
+			cache[i][j] = (-1);
+      LRU[i][j] = (-1);
     }
-  }
-  for(int x = 0; x<addr.size(); x++){
-    int tag = addr[x]/blocks;
-    for(int i = 0; i < blocks; i++){
-      for(int j = 0; j<way; j++){
-	if(cache[i][j] == tag){
-	  LRU[i][j] = x;
-	  hit++;
 	}
-	else if(cache[i][j] == -1){
-	  cache[i][j] = tag;
-	  LRU[i][j] = x;
-	}
-	else{
-	  int min = LRU[0][0];
-	  int minI;
-	  int minJ;
-	  for(int y = 0; y<blocks;y++){
-	    for(int q = 0; q<way; q++){
-	      if(LRU[y][q]<min){
-		min = LRU[y][q];
-		minI = y;
-		minJ = q;
-	      }
-	    }
-	  }
-	  cache[minI][minJ] = cache[i][j];
-	  LRU[minI][minJ] = x;
-	}
-      }
-    }
+  for(int i = 0; i<addr.size(); i++){
+		addr[i] = addr[i]>>5;
+    int tag = addr[i]/blocks;
+		int set = addr[i]%blocks;
+		int full = 0;
+		for(int j = 0; j<way; j++){
+			if(full!=1){
+				if(cache[set][j] !=-1){
+					if(cache[set][j] == tag){
+						hit++;
+						LRU[set][j] = i;
+						full = 1;
+					}
+				}
+			}
+			else if(cache[set][j] == -1){
+				cache[set][j] = tag;
+				LRU[set][j] = i;
+				full = 1;
+			}
+			
+			else if(full == 1){
+				int minJ = 0;
+				int min = LRU[set][0];
+				for(int x = 1; x<set; set++){
+					if(LRU[set][x]<min){
+						min = LRU[set][x];
+						minJ = x;
+					}
+				}
+				cache[set][minJ] = tag;
+				LRU[set][minJ] = i;
+			}			
+		}
   }
   return hit;
 }
@@ -102,11 +106,12 @@ int main(int argc, char *argv[]) {
 	for(int i = 0; i<4; i++){
 		cout << direct(address, sizes[i]) << ","<< address.size() << "; ";
 	}
-        vector<int>sets{2,4,8,16};
-	  cout << endl;
-	  for(int i = 0; i<4; i++)
-	    cout << set_associative(address, sizes[i]) << "," << address.size() << "; ";
-	  cout << endl;
+	cout << endl;
+  vector<int>sets{2, 4, 8, 16};
+	for(int i = 0; i<4; i++){
+	  cout << set_associative(address, sizes[i]) << "," << address.size() << "; ";
+	}
+	cout << endl;
   return 0;
 }
 
