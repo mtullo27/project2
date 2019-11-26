@@ -37,44 +37,40 @@ int set_associative(vector<long long>addr, int way){
   int LRU[blocks][way];
   for(int i = 0; i < blocks; i++){
     for(int j = 0; j < way; j++){
-			cache[i][j] = (-1);
+      cache[i][j] = (-1);
       LRU[i][j] = (-1);
     }
+  }
+  for(int i = 0; i< addr.size(); i++){
+    int filled = 0;
+    int min = LRU[0][0];
+    int minP = 0;
+    int minQ = 0;
+    for(int p = 0; p<blocks; p++){
+      for(int q = 0; q<way; q++){
+	if(LRU[p][q] < min){
+	  min = LRU[p][q];
+	  minP = p;
+	  minQ = q;
 	}
-  for(int i = 0; i<addr.size(); i++){
-		addr[i] = addr[i]>>5;
-    int tag = addr[i]/blocks;
-		int set = addr[i]%blocks;
-		int full = 0;
-		for(int j = 0; j<way; j++){
-			if(full!=1){
-				if(cache[set][j] !=-1){
-					if(cache[set][j] == tag){
-						hit++;
-						LRU[set][j] = i;
-						full = 1;
-					}
-				}
-			}
-			else if(cache[set][j] == -1){
-				cache[set][j] = tag;
-				LRU[set][j] = i;
-				full = 1;
-			}
-			
-			else if(full == 1){
-				int minJ = 0;
-				int min = LRU[set][0];
-				for(int x = 1; x<set; set++){
-					if(LRU[set][x]<min){
-						min = LRU[set][x];
-						minJ = x;
-					}
-				}
-				cache[set][minJ] = tag;
-				LRU[set][minJ] = i;
-			}			
-		}
+	if(cache[p][q] != -1){
+	  if(addr[i] == cache[p][q]){
+	    hit++;
+	    filled = 1;
+	    LRU[p][q] = i;
+	  }
+	}
+	else if(cache[p][q] == -1){
+	  cache[p][q] = addr[i];
+	  filled = 1;
+	  LRU[p][q] = i;
+	}
+      }
+    }
+    if(filled = 0){
+      cache[minP][minQ] = addr[i];
+      LRU[minP][minQ] = i;
+    }
   }
   return hit;
 }
@@ -109,7 +105,7 @@ int main(int argc, char *argv[]) {
 	cout << endl;
   vector<int>sets{2, 4, 8, 16};
 	for(int i = 0; i<4; i++){
-	  cout << set_associative(address, sizes[i]) << "," << address.size() << "; ";
+	  cout << set_associative(address, sets[i]) << "," << address.size() << "; ";
 	}
 	cout << endl;
   return 0;
