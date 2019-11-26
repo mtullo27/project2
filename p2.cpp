@@ -46,30 +46,35 @@ int set_associative(vector<long long>addr, int way){
     int min = LRU[0][0];
     int minP = 0;
     int minQ = 0;
+    if(filled>=blocks*way){
     for(int p = 0; p<blocks; p++){
-      for(int q = 0; q<way; q++){
+      for(int q = 0; q<blocks; q++){
 	if(LRU[p][q] < min){
 	  min = LRU[p][q];
 	  minP = p;
 	  minQ = q;
 	}
+      }
+    }
+    }
+    for(int p = 0; p<blocks; p++){
+      for(int q = 0; q<way; q++){
 	if(cache[p][q] != -1){
 	  if(addr[i] == cache[p][q]){
 	    hit++;
-	    filled = 1;
 	    LRU[p][q] = i;
+	  }
+	  if(filled >= blocks*way){
+	    cache[minP][minQ] = addr[i];
+	    LRU[minP][minQ] = i;
 	  }
 	}
 	else if(cache[p][q] == -1){
 	  cache[p][q] = addr[i];
-	  filled = 1;
+	  filled++;
 	  LRU[p][q] = i;
 	}
       }
-    }
-    if(filled = 0){
-      cache[minP][minQ] = addr[i];
-      LRU[minP][minQ] = i;
     }
   }
   return hit;
