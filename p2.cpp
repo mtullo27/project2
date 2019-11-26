@@ -34,45 +34,45 @@ int set_associative(vector<long long>addr, int way){
   int sets = 512/way;
   long long cache[sets][way];
   int hit = 0;
-  int LRU[sets[way];
+  int LRU[sets][way];
   for(int i = 0; i<sets; i++){
-		for(int j = 0; j<ways; j++){
-			LRU[i][j] = -1;
-			cache[i][j] = -1;
-		}
+    for(int j = 0; j<way; j++){
+      LRU[i][j] = -1;
+      cache[i][j] = -1;
+    }
+  }
+  for(int i = 0; i<addr.size(); i++){
+    long long tag = addr[i]>>5;
+    int lruP = 0;
+    int lruQ = 0;
+    bool isSet = false;
+    int lru = LRU[0][0];
+    for(int p = 0; p<sets; p++){
+      for(int q = 0; q<way; q++){
+	if(cache[p][q] == tag){
+	  hit++;
+	  isSet = true;
+	  LRU[p][q] = i;
 	}
-	for(int i = 0; i<addr.size(); i++){
-		long long tag = addr>>5;
-		int lruP = 0;
-		int lruQ = 0;
-		bool isSet = false;
-		int lru = LRU[0][0];
-		for(int p = 0; p<sets; p++){
-			for(int q = 0; q<way; q++){
-				if(cache[p][q] == tag){
-					hit++;
-					isSet = true;
-					LRU[p][q] = i;
-				}
-				if(cache[p][q] == -1){
-					cache[p][q] = tag;
-					LRU[p][q] = i;
-					isSet = true;
-					p = sets;
-					q = way;
-				}
-				if(LRU[p][q]<lru){
-					lruP = p;
-					lruQ = q;
-					lru = LRU[p][q];
-				}
-			}
-		}
-		if(!(isSet)){
-			cache[lruP][lruQ] = addr[i];
-			LRU[lruP][lruQ] = i;
-		}
+	if(cache[p][q] == -1){
+	  cache[p][q] = tag;
+	  LRU[p][q] = i;
+	  isSet = true;
+	  p = sets;
+	  q = way;
 	}
+	if(LRU[p][q]<lru){
+	  lruP = p;
+	  lruQ = q;
+	  lru = LRU[p][q];
+	}
+      }
+    }
+    if(!(isSet)){
+      cache[lruP][lruQ] = addr[i];
+      LRU[lruP][lruQ] = i;
+    }
+  }
   return hit;
 }
 
@@ -157,10 +157,10 @@ int main(int argc, char *argv[]) {
   }
   cout << endl;
   vector<int>sets{2, 4, 8, 16};
-  //	for(int i = 0; i<4; i++){
-  //	  cout << set_associative(address, sets[i]) << "," << address.size() << "; ";
-  //	}
-  //	cout << endl;
+  for(int i = 0; i<4; i++){
+    cout << set_associative(address, sets[i]) << "," << address.size() << "; ";
+  }
+  cout << endl;
   cout << Fully_Associative(address) << "," << address.size() << endl;
   return 0;
 }
