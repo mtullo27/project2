@@ -75,6 +75,51 @@ int set_associative(vector<long long>addr, int way){
   return hit;
 }
 
+int write(vector<long long>addr,vector<string>behave, int way){
+  int blocks = 512;
+  long long cache[blocks][way];
+  int hit = 0;
+  int LRU[blocks][way];
+  for(int i = 0; i < blocks; i++){
+    for(int j = 0; j < way; j++){
+      cache[i][j] = (-1);
+      LRU[i][j] = (-1);
+    }
+  }
+  for(int i = 0; i< addr.size(); i++){
+    int filled = 0;
+    int min = LRU[0][0];
+    int minP = 0;
+    int minQ = 0;
+    for(int p = 0; p<blocks; p++){
+      for(int q = 0; q<way; q++){
+	if(LRU[p][q] < min){
+	  min = LRU[p][q];
+	  minP = p;
+	  minQ = q;
+	}
+	if(cache[p][q] != -1){
+	  if(addr[i] == cache[p][q]){
+	    hit++;
+	    filled = 1;
+	    LRU[p][q] = i;
+	  }
+	}
+	else if(behave[i] != "S" && cache[p][q] == -1){
+	  cache[p][q] = addr[i];
+	  filled = 1;
+	  LRU[p][q] = i;
+	}
+      }
+    }
+    if(filled = 0 && behave[i]!= "S"){
+      cache[minP][minQ] = addr[i];
+      LRU[minP][minQ] = i;
+    }
+  }
+  return hit;
+}
+
 int main(int argc, char *argv[]) {
 
   // Temporary variables
