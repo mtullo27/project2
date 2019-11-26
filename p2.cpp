@@ -125,52 +125,52 @@ int write(vector<long long>addr,vector<string>behave, int way){
   return hit;
 }
 
-int Fully_Associative(vector<long long> addr){
+int Fully_Associative(vector<long long> addr1){
   int blocks = 512;
   long long cache[blocks];
   int temperature[blocks];
   int hit = 0;
   int volume = 0;
+  vector<long long> addr = addr1;
   for(int i = 0; i<blocks; i++){
     cache[i] = -1;
-    temperature[i] = 0;
+    temperature[i] = -1;
   }
   for(int i = 0; i<addr.size(); i++){
-    int set = 0;
     addr[i] = addr[i]>>5;
     if(volume >= blocks){
       int min = temperature[0];
       int minI = 0;
-      int exsists = 0;
+      bool isHit = true;
       for(int p = 1; p<blocks; p++){
-	if(temperature[p]<min){
+	if(temperature[p]<=min){
 	  min = temperature[p];
 	  minI = p;
 	}
 	if(cache[p] == addr[i]){
 	  hit++;
-	  set = 1;
-	  temperature[p]+=2;
+	  isHit = false;
+	  temperature[p]=i;
 	}
-	temperature[p]--;
       }
-      if(set == 0){
+      if(isHit){
 	cache[minI] = addr[i];
-	temperature[minI] = 1;
+	temperature[minI] = i;
       }
     }
-    else{
-      for(int j = 0; j<blocks; j++){
+    if(volume < blocks){
+      bool isHit = false;
+      for(int j = 0; j<=volume; j++){
 	if(cache[j] == addr[i]){
 	  hit++;
-	  temperature[j]+=2;
+	  isHit = true;
+	  temperature[j] = i;
 	}
-	else if(cache[j] = -1){
-	  cache[j] = addr[i];
-	  temperature[j]+=2;
-	  volume++;
-	}
-	temperature[j]--;
+      }
+      if(!(isHit)){
+	cache[volume] = addr[i];
+	temperature[volume] = i;
+	volume++;
       }
     }
   }
