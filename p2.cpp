@@ -6,28 +6,28 @@ using namespace std;
 int direct(vector<long long> addr, int size){
   int blocks = size/32;
   long long cache[blocks];
-	int valid[blocks];
-	int hit = 0;
-	for(int i = 0; i<size; i++){
-		cache[i] = -1;
-		valid[i] = 0;
-	}
-	for(int i = 0; i<addr.size(); i++){
-	  long long addrB = addr[i]>>5;
-	  int index = addrB%(blocks);
-	  int tag = addrB/blocks;
-		if(valid[index] == 1){
-			if(cache[index] == tag)
-				hit++;
-			else
-				cache[index] = tag;
-		}	
-		if(valid[index] == 0){
-			valid[index] = 1;
-			cache[index] = tag;
-		}
-	}
-	return hit;
+  int valid[blocks];
+  int hit = 0;
+  for(int i = 0; i<size; i++){
+    cache[i] = -1;
+    valid[i] = 0;
+  }
+  for(int i = 0; i<addr.size(); i++){
+    long long addrB = addr[i]>>5;
+    int index = addrB%(blocks);
+    int tag = addrB/blocks;
+    if(valid[index] == 1){
+      if(cache[index] == tag)
+	hit++;
+      else
+	cache[index] = tag;
+    }	
+    if(valid[index] == 0){
+      valid[index] = 1;
+      cache[index] = tag;
+    }
+  }
+  return hit;
 }
 
 int set_associative(vector<long long>addr, int way){
@@ -47,15 +47,15 @@ int set_associative(vector<long long>addr, int way){
     int minP = 0;
     int minQ = 0;
     if(filled>=blocks*way){
-    for(int p = 0; p<blocks; p++){
-      for(int q = 0; q<blocks; q++){
-	if(LRU[p][q] < min){
-	  min = LRU[p][q];
-	  minP = p;
-	  minQ = q;
+      for(int p = 0; p<blocks; p++){
+	for(int q = 0; q<blocks; q++){
+	  if(LRU[p][q] < min){
+	    min = LRU[p][q];
+	    minP = p;
+	    minQ = q;
+	  }
 	}
       }
-    }
     }
     for(int p = 0; p<blocks; p++){
       for(int q = 0; q<way; q++){
@@ -138,35 +138,39 @@ int Fully_Associative(vector<long long> addr){
   for(int i = 0; i<addr.size(); i++){
     int set = 0;
     addr[i] = addr[i]>>5;
-    for(int j = 0; j<blocks; j++){
+    if(volume >= blocks){
+      int min = temperature[0];
+      int minI = 0;
+      int exsists = 0;
+      for(int p = 1; p<blocks; p++){
+	if(temperature[p]<min){
+	  min = temperature[p];
+	  minI = p;
+	}
+	if(cache[p] == addr[i]){
+	  hit++;
+	  set = 1;
+	  temperature[p]+=2;
+	}
+	temperature[p]--;
+      }
       if(set == 0){
+	cache[minI] = addr[i];
+	temperature[minI] = 1;
+      }
+    }
+    else{
+      for(int j = 0; j<blocks; j++){
 	if(cache[j] == addr[i]){
 	  hit++;
-	  temperature[j]++;
-	  set = 1;
-	  volume++;
+	  temperature[j]+=2;
 	}
 	else if(cache[j] = -1){
 	  cache[j] = addr[i];
-	  temperature[j]++;
-	  set = 1;
+	  temperature[j]+=2;
 	  volume++;
 	}
-	if(set == 0){
-	  temperature[j]--;
-	}
-      }
-      if(volume >= blocks){
-	int min = temperature[0];
-	int minI = 0;
-	for(int p = 1; p<blocks; p++){
-	  if(temperature[p]<min){
-	    min = temperature[p];
-	    minI = p;
-	  }
-	}
-	cache[minI] = addr[i];
-	temperature[minI] = 1;
+	temperature[j]--;
       }
     }
   }
@@ -182,9 +186,9 @@ int main(int argc, char *argv[]) {
   // Open file for reading
   ifstream infile(argv[1]);
 
-	//storage for variables
-	vector<long long> address;
-	vector<string> strld;
+  //storage for variables
+  vector<long long> address;
+  vector<string> strld;
   // The following loop will read a hexadecimal number and
   // a string each time and then output them
   while(infile >>  behavior >> hex >> addr) {
@@ -194,13 +198,13 @@ int main(int argc, char *argv[]) {
     else 
       strld.push_back("S");
   }
-	//open file to write to
-	ofstream cout(argv[2]);
-	vector<int> sizes{1024, 4096, 16384, 32768};
-	for(int i = 0; i<4; i++){
-		cout << direct(address, sizes[i]) << ","<< address.size() << "; ";
-	}
-	cout << endl;
+  //open file to write to
+  ofstream cout(argv[2]);
+  vector<int> sizes{1024, 4096, 16384, 32768};
+  for(int i = 0; i<4; i++){
+    cout << direct(address, sizes[i]) << ","<< address.size() << "; ";
+  }
+  cout << endl;
   vector<int>sets{2, 4, 8, 16};
   //	for(int i = 0; i<4; i++){
   //	  cout << set_associative(address, sets[i]) << "," << address.size() << "; ";
