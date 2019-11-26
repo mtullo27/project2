@@ -31,52 +31,48 @@ int direct(vector<long long> addr, int size){
 }
 
 int set_associative(vector<long long>addr, int way){
-  int blocks = 512;
-  long long cache[blocks][way];
+  int sets = 512/way;
+  long long cache[sets][way];
   int hit = 0;
-  int LRU[blocks][way];
-  for(int i = 0; i < blocks; i++){
-    for(int j = 0; j < way; j++){
-      cache[i][j] = (-1);
-      LRU[i][j] = (-1);
-    }
-  }
-  for(int i = 0; i< addr.size(); i++){
-    int filled = 0;
-    int min = LRU[0][0];
-    int minP = 0;
-    int minQ = 0;
-    if(filled>=blocks*way){
-      for(int p = 0; p<blocks; p++){
-	for(int q = 0; q<blocks; q++){
-	  if(LRU[p][q] < min){
-	    min = LRU[p][q];
-	    minP = p;
-	    minQ = q;
-	  }
+  int LRU[sets[way];
+  for(int i = 0; i<sets; i++){
+		for(int j = 0; j<ways; j++){
+			LRU[i][j] = -1;
+			cache[i][j] = -1;
+		}
 	}
-      }
-    }
-    for(int p = 0; p<blocks; p++){
-      for(int q = 0; q<way; q++){
-	if(cache[p][q] != -1){
-	  if(addr[i] == cache[p][q]){
-	    hit++;
-	    LRU[p][q] = i;
-	  }
-	  if(filled >= blocks*way){
-	    cache[minP][minQ] = addr[i];
-	    LRU[minP][minQ] = i;
-	  }
+	for(int i = 0; i<addr.size(); i++){
+		long long tag = addr>>5;
+		int lruP = 0;
+		int lruQ = 0;
+		bool isSet = false;
+		int lru = LRU[0][0];
+		for(int p = 0; p<sets; p++){
+			for(int q = 0; q<way; q++){
+				if(cache[p][q] == tag){
+					hit++;
+					isSet = true;
+					LRU[p][q] = i;
+				}
+				if(cache[p][q] == -1){
+					cache[p][q] = tag;
+					LRU[p][q] = i;
+					isSet = true;
+					p = sets;
+					q = way;
+				}
+				if(LRU[p][q]<lru){
+					lruP = p;
+					lruQ = q;
+					lru = LRU[p][q];
+				}
+			}
+		}
+		if(!(isSet)){
+			cache[lruP][lruQ] = addr[i];
+			LRU[lruP][lruQ] = i;
+		}
 	}
-	else if(cache[p][q] == -1){
-	  cache[p][q] = addr[i];
-	  filled++;
-	  LRU[p][q] = i;
-	}
-      }
-    }
-  }
   return hit;
 }
 
