@@ -37,56 +37,33 @@ int set_associative(vector<long long>addr, int way){
   int LRU[sets][way];
   int volume = 0;
   for(int i = 0; i<sets; i++){
-    for(int j = 0; j<way; j++){
-      LRU[i][j] = -1;
-      cache[i][j] = -1;
-    }
-  }
-  for(int i = 0; i<addr.size(); i++){
-    long long tag = addr[i]>>5;
-    int lruP = 0;
-    int lruQ = 0;
-    bool isSet = false;
-    int lru = LRU[0][0];
-    if(volume < sets*way){
-      for(int p = 0; p<sets; p++){
-	for(int q = 0; q<way; q++){
-	  if(cache[p][q] == tag){
-	    hit++;
-	    isSet = true;
-	    LRU[p][q] = i;
-	  }
-	  if(cache[p][q] == -1){
-	    cache[p][q] = tag;
-	    LRU[p][q] = i;
-	    isSet = true;
-	    volume++;
-	    p = sets;
-	    q = way;
-	  }
-	}
-      }
-    }
-    if(volume >= sets*way){
-      for(int p = 0; p<sets; p++){
-	for(int q = 0; q<way; q++){
-	  if(cache[p][q] == tag){
-	    hit++;
-	    isSet = true;
-	    LRU[p][q] = i;
-	  }
-	  if(LRU[p][q] < lru){
-	    lruP = p;
-	    lruQ = q;
-	    lru = LRU[p][q];
-	  }
-	}
-      }
-      if(!(isSet)){
-	cache[lruP][lruQ] = addr[i];
-	LRU[lruP][lruQ] = i;
-      }
-    }
+		long long temp = addr[i]>>5;
+		int tag = temp/sets;
+		int set = temp%sets;
+		int lruJ = 0;
+		int lru = LRU[set][0];
+		bool isSet = false;
+		for(int j = 0; j<way; j++){
+			if(cache[set][j] == tag){
+				hit++;
+				isSet = true;
+				LRU[set][j] = i;
+			}
+			if(LRU[set][j] < lru){
+				lru = LRU[set][j];
+				lruJ = j;
+			}
+			if(cache[set][j] == -1){
+				cache[set][j] = tag;
+				LRU[set][j] = i;
+				isSet = true;
+				j = way;
+			}
+		}
+		if(!isSet){
+			cache[set][lruJ] = tag;
+			LRU[set][lruJ] = i;
+		}
   }
   return hit;
 }
