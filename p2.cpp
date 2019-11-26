@@ -55,8 +55,6 @@ int set_associative(vector<long long>addr, int way){
 	    hit++;
 	    isSet = true;
 	    LRU[p][q] = i;
-	    p = sets;
-	    q = way;
 	  }
 	  if(cache[p][q] == -1){
 	    cache[p][q] = tag;
