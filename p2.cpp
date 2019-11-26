@@ -125,6 +125,54 @@ int write(vector<long long>addr,vector<string>behave, int way){
   return hit;
 }
 
+int Fully_Associative(vector<long long> addr){
+  int blocks = 512;
+  long long cache[blocks];
+  int temperature[blocks];
+  int hit = 0;
+  int volume = 0;
+  for(int i = 0; i<blocks; i++){
+    cache[i] = -1;
+    temperature[i] = 0;
+  }
+  for(int i = 0; i<addr.size(); i++){
+    int set = 0;
+    addr[i] = addr[i]>>5;
+    for(int j = 0; j<blocks; j++){
+      if(set == 0){
+	if(cache[j] == addr[i]){
+	  hit++;
+	  temperature[j]++;
+	  set = 1;
+	  volume++;
+	}
+	else if(cache[j] = -1){
+	  cache[j] = addr[i];
+	  temperature[j]++;
+	  set = 1;
+	  volume++;
+	}
+	if(set == 0){
+	  temperature[j]--;
+	}
+      }
+      if(volume >= blocks){
+	int min = temperature[0];
+	int minI = 0;
+	for(int p = 1; p<blocks; p++){
+	  if(temperature[p]<min){
+	    min = temperature[p];
+	    minI = p;
+	  }
+	}
+	cache[minI] = addr[i];
+	temperature[minI] = 1;
+      }
+    }
+  }
+  return hit;
+}
+
 int main(int argc, char *argv[]) {
 
   // Temporary variables
@@ -154,10 +202,11 @@ int main(int argc, char *argv[]) {
 	}
 	cout << endl;
   vector<int>sets{2, 4, 8, 16};
-	for(int i = 0; i<4; i++){
-	  cout << set_associative(address, sets[i]) << "," << address.size() << "; ";
-	}
-	cout << endl;
+  //	for(int i = 0; i<4; i++){
+  //	  cout << set_associative(address, sets[i]) << "," << address.size() << "; ";
+  //	}
+  //	cout << endl;
+  cout << Fully_Associative(address) << "," << address.size() << endl;
   return 0;
 }
 
