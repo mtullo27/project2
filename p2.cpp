@@ -197,7 +197,7 @@ int main(int argc, char *argv[]) {
   cout << Fully_Associative(address) << "," << address.size() << endl;
   cout << "This does not work" << endl;
   for(int i = 0; i<4; i++){
-    cout << write_miss(address, srtld, sets[i]) << "," << address.size() << "; ";
+    cout << write_miss(address, strld, sets[i]) << "," << address.size() << "; ";
   }
   return 0;
 }
