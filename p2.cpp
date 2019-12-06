@@ -269,7 +269,7 @@ int main(int argc, char *argv[]) {
     cout << write_miss(address, strld, sets[i]) << "," << address.size() << "; ";
   }
   for(int i = 0; i<4; i++){
-    cout << prefetch(address, strld, sets[i]) << "," << address.size() << "; ";
+    cout << prefetch(address, sets[i]) << "," << address.size() << "; ";
   }
   return 0;
 }
