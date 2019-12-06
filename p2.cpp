@@ -174,7 +174,7 @@ int prefetch(vector<long long>addr, int way){
       cache[i][j] = -1;
     }
   }
-  for(int i = 0; i<addr.size()-1; i++){
+  for(int i = 0; i<addr.size()-1; i+=2){
     long long temp = addr[i]>>5;
     int tag = temp/sets;
     int set = temp%sets;
