@@ -268,6 +268,7 @@ int main(int argc, char *argv[]) {
   for(int i = 0; i<4; i++){
     cout << write_miss(address, strld, sets[i]) << "," << address.size() << "; ";
   }
+  cout << endl;
   for(int i = 0; i<4; i++){
     cout << prefetch(address, sets[i]) << "," << address.size() << "; ";
   }
