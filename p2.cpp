@@ -35,35 +35,42 @@ int set_associative(vector<long long>addr, int way){
   long long cache[sets][way];
   int hit = 0;
   int LRU[sets][way];
+  int full[sets];
   int volume = 0;
   for(int i = 0; i<sets; i++){
-		long long temp = addr[i]>>5;
-		int tag = temp/sets;
-		int set = temp%sets;
-		int lruJ = 0;
-		int lru = LRU[set][0];
-		bool isSet = false;
-		for(int j = 0; j<way; j++){
-			if(cache[set][j] == tag){
-				hit++;
-				isSet = true;
-				LRU[set][j] = i;
-			}
-			if(LRU[set][j] < lru){
-				lru = LRU[set][j];
-				lruJ = j;
-			}
-			if(cache[set][j] == -1){
-				cache[set][j] = tag;
-				LRU[set][j] = i;
-				isSet = true;
-				j = way;
-			}
-		}
-		if(!isSet){
-			cache[set][lruJ] = tag;
-			LRU[set][lruJ] = i;
-		}
+    for(int j = 0; j<way; j++){
+      LRU[i][j] = -1;
+      cache[i][j] = -1;
+    }
+  }
+  for(int i = 0; i<addr.size(); i++){
+    long long temp = addr[i]>>5;
+    int tag = temp/sets;
+    int set = temp%sets;
+    bool cached = false;
+    for(int j = 0; j<way; j++){
+      if(cache[set][j] == -1){
+	cache[set][j] = tag;
+	LRU[sets][j] = i;
+	cached = true;
+      }
+      else if(cache[set][j] == tag){
+	hit++;
+	LRU[set][j] = i;
+	cached = true;
+      }
+    }
+    if(!cached){
+      int lru = LRU[set][0];
+      int lruIndex = 0;
+      for(int j = 0; j<way; j++){
+	if(LRU[set][j] < lru){
+	  lruIndex = j;
+	}
+      }
+      LRU[set][lruIndex] = i;
+      cache[set][lruIndex] = tag;
+      }
   }
   return hit;
 }
@@ -71,50 +78,39 @@ int set_associative(vector<long long>addr, int way){
 int Fully_Associative(vector<long long> addr1){
   int blocks = 512;
   long long cache[blocks];
-  int temperature[blocks];
+  int LRU[blocks];
   int hit = 0;
-  int volume = 0;
   vector<long long> addr = addr1;
   for(int i = 0; i<blocks; i++){
     cache[i] = -1;
-    temperature[i] = -1;
+    LRU[i] = -1;
   }
   for(int i = 0; i<addr.size(); i++){
     addr[i] = addr[i]>>5;
-    if(volume >= blocks){
-      int min = temperature[0];
-      int minI = 0;
-      bool isHit = true;
-      for(int p = 1; p<blocks; p++){
-	if(temperature[p]<=min){
-	  min = temperature[p];
-	  minI = p;
-	}
-	if(cache[p] == addr[i]){
-	  hit++;
-	  isHit = false;
-	  temperature[p]=i;
-	}
+    bool cached = false;
+    for(int j = 0; j<blocks; j++){
+      if(cache[j] == -1){
+	cache[j] = addr[i];
+	LRU[j] = i;
+	cached = true;
       }
-      if(isHit){
-	cache[minI] = addr[i];
-	temperature[minI] = i;
+      else if(cache[j] == addr[i]){
+	hit++;
+	LRU[j] = i;
+	cached = true;
       }
     }
-    if(volume < blocks){
-      bool isHit = false;
-      for(int j = 0; j<=volume; j++){
-	if(cache[j] == addr[i]){
-	  hit++;
-	  isHit = true;
-	  temperature[j] = i;
+    if(!cached){
+      int lru = LRU[0];
+      int lruI = 0;
+      for(int j = 0; j<blocks; j++){
+	if(LRU[j] < lru){
+	  lru = LRU[j];
+	  lruI = j;
 	}
       }
-      if(!(isHit)){
-	cache[volume] = addr[i];
-	temperature[volume] = i;
-	volume++;
-      }
+      cache[lruI] = addr[i];
+      LRU[lruI] = i;
     }
   }
   return hit;
