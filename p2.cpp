@@ -115,7 +115,52 @@ int Fully_Associative(vector<long long> addr1){
   }
   return hit;
 }
-
+int write_miss(vector<long long>addr, vector<string> behave, int way){
+  int sets = 512/way;
+  long long cache[sets][way];
+  int hit = 0;
+  int LRU[sets][way];
+  int full[sets];
+  int volume = 0;
+  for(int i = 0; i<sets; i++){
+    for(int j = 0; j<way; j++){
+      LRU[i][j] = -1;
+      cache[i][j] = -1;
+    }
+  }
+  for(int i = 0; i<addr.size(); i++){
+    long long temp = addr[i]>>5;
+    int tag = temp/sets;
+    int set = temp%sets;
+    bool cached = false;
+    for(int j = 0; j<way; j++){
+      if(cache[set][j] == -1){
+	if(behave[i] == "L"){
+	  cache[set][j] = tag;
+	  LRU[sets][j] = i;
+	  cached = true;
+	}
+      }
+      else if(cache[set][j] == tag){
+	hit++;
+	LRU[set][j] = i;
+	cached = true;
+      }
+    }
+    if(behave[i] == "L" && !cached){
+      int lru = LRU[set][0];
+      int lruIndex = 0;
+      for(int j = 0; j<way; j++){
+	if(LRU[set][j] < lru){
+	  lruIndex = j;
+	}
+      }
+      LRU[set][lruIndex] = i;
+      cache[set][lruIndex] = tag;
+      }
+  }
+  return hit;
+}
 int main(int argc, char *argv[]) {
 
   // Temporary variables
@@ -150,6 +195,10 @@ int main(int argc, char *argv[]) {
   }
   cout << endl;
   cout << Fully_Associative(address) << "," << address.size() << endl;
+  cout << "This does not work" << endl;
+  for(int i = 0; i<4; i++){
+    cout << write_miss(address, srtld, sets[i]) << "," << address.size() << "; ";
+  }
   return 0;
 }
 
