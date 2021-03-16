@@ -56,17 +56,27 @@ export default class Grades {
    *  options.projectionSpec or options.selectionSpec should result in
    *  an error.
    */
+   
   query(courseId, options={}) {
     const { projectionSpec=[], selectionSpec={} } = options;
-    //@TODO
-    return { [courseId]: [] } //@TODO: replace
+    if(courseId._id == courseId){
+    	return this._precomputed;
+    }
+    else{
+    	_precompute(courseId);
+    }
   }
-
-  //@TODO: add code as required
   
 }
 
-//@TODO: add code as required
+function _precompute(courseId){
+ let precomp = {
+  _id: courseId,
+  _table: courseId._grades,
+  //_IdTypes: makeIdTypes(courseId._grades),
+ }
+ return precomp;
+}
 
 
 //Value to be ignored when computing stats
